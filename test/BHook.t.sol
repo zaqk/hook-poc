@@ -2,10 +2,13 @@
 pragma solidity ^0.8.13;
 
 import {Test} from "forge-std/Test.sol";
+
+import {MockERC20} from "solmate/src/test/utils/mocks/MockERC20.sol";
+
+import {PoolKey} from "v4-core/types/PoolKey.sol";
 import {Hooks} from "v4-core/libraries/Hooks.sol";
 import {IPoolManager} from "v4-core/interfaces/IPoolManager.sol";
-import {MockERC20} from "forge-std/MockERC20.sol";
-
+import {TickMath} from "v4-core/libraries/TickMath.sol";
 import {BHookPoc} from "src/BHook.sol";
 
 import {HookMiner} from "test/utils/HookMiner.sol";
@@ -16,6 +19,8 @@ contract BHookTest is Test {
     IPoolManager public poolManager;
 
     address poolManagerAdmin = makeAddr("poolManagerAdmin");
+
+    int24 initialActiveTick = -100_000;
 
     function setUp() public {
 
@@ -40,10 +45,10 @@ contract BHookTest is Test {
                 token0: address(token0),
                 token1: address(token1),
                 fee: 10_000,
-                tickSpacing: 200
+                tickSpacing: 200,
+                hooks: IHooks(address(bhook))
             }),
-            poolManagerAdmin,
-            new bytes(0)
+            TickMath.getSqrtPriceAtTick(initialActiveTick)
         );
 
     }
