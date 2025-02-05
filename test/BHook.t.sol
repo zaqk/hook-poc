@@ -9,6 +9,9 @@ import {PoolKey} from "v4-core/types/PoolKey.sol";
 import {Hooks} from "v4-core/libraries/Hooks.sol";
 import {IPoolManager} from "v4-core/interfaces/IPoolManager.sol";
 import {TickMath} from "v4-core/libraries/TickMath.sol";
+import {IHooks} from "v4-core/interfaces/IHooks.sol";
+import {Currency} from "v4-core/types/Currency.sol";
+
 import {BHookPoc} from "src/BHook.sol";
 
 import {HookMiner} from "test/utils/HookMiner.sol";
@@ -16,7 +19,11 @@ import {UniswapDeployer} from "test/utils/UniswapDeployer.sol";
 
 contract BHookTest is Test {
     BHookPoc public bhook;
+
+
     IPoolManager public poolManager;
+    MockERC20 public token0;
+    MockERC20 public token1;
 
     address poolManagerAdmin = makeAddr("poolManagerAdmin");
 
@@ -24,11 +31,10 @@ contract BHookTest is Test {
 
     function setUp() public {
 
-        MockERC20 token0 = new MockERC20("Token0", "T0", 18);
-        MockERC20 token1 = new MockERC20("Token1", "T1", 18);
+        (token0, token1) = _deployTokens();
 
         // Deploy poolmanager
-        IPoolManager poolManager = IPoolManager(UniswapDeployer.deployPoolManager(poolManagerAdmin));
+        poolManager = IPoolManager(UniswapDeployer.deployPoolManager(poolManagerAdmin));
 
         // Deploy hook
         (,bytes32 salt) = HookMiner.find(
@@ -42,8 +48,8 @@ contract BHookTest is Test {
         // Initialize pool
         poolManager.initialize(
             PoolKey({
-                token0: address(token0),
-                token1: address(token1),
+                currency0: Currency.wrap(address(token0)),
+                currency1: Currency.wrap(address(token1)),
                 fee: 10_000,
                 tickSpacing: 200,
                 hooks: IHooks(address(bhook))
@@ -56,6 +62,14 @@ contract BHookTest is Test {
     function test_bHookPoc() public {
 
 
+    }
+
+    function _deployTokens() internal returns (MockERC20 t0, MockERC20 t1) {
+        t0 = new MockERC20("Token0", "T0", 18);
+        t1 = new MockERC20("Token1", "T1", 18);
+        if (address(t0) > address(t1)) {
+            (t0, t1) = (t1, t0);
+        }
     }
 
 }
