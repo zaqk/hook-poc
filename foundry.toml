@@ -19,6 +19,12 @@ remappings=[
     "v4-core/=lib/v4-core/src/",
     "v4-periphery/=lib/v4-periphery/src/",
 
+    "universal-router/=lib/universal-router/contracts/",
+
+
+    "@uniswap/v4-core/=lib/v4-core/",
+    "@uniswap/v4-periphery/=lib/v4-periphery/",
+
 
     # required for Uniswap Periphery/Core compatibility
     "@uniswap/v3-core/=lib/v3-core/",
